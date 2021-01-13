@@ -71,9 +71,9 @@
                 </div>
 
                 <div class="links">
-                    <a href="{{env('DOC_POSTMAN_LINK')}}">Docs For Postman</a>
+                    <a href="{{env('DOC_POSTMAN_LINK')}}">{{env('APP_NAME')}} Docs</a>
+                    <a href="{{env('APP_GITHUB_LINK')}}">{{env('APP_NAME')}} GitHub</a>
                     <a href="https://lumen.laravel.com/">Lumen Docs</a>
-                    <a href="https://laracasts.com">Laracasts</a>
                     <a href="https://github.com/laravel/lumen">Lumen GitHub</a>
                 </div>
             </div>
