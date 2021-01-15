@@ -39,7 +39,7 @@ class EarthRegionSortRequest extends BaseRequest
     {
         return [
             'country_id.required' => 'A country id required',
-            'country_id.uuid'  => 'Country id characters are not valid, Integer is expected',
+            'country_id.integer'  => 'Country id characters are not valid, Integer is expected',
             'country_id.min'  => 'Country id characters can not be less than 0',
 
             'state_id.required_unless' => 'A state id field should be present, else entirely exclude the city id field',
