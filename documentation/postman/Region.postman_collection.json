@@ -20,7 +20,7 @@
 								{
 									"key": "country_id",
 									"value": "160",
-									"description": "Required ('0' to get all)",
+									"description": "Optional",
 									"type": "text"
 								},
 								{
@@ -88,15 +88,97 @@
 					"response": []
 				}
 			],
-			"description": "Get regions of the planet earth",
-			"protocolProfileBehavior": {}
+			"description": "Get regions of the planet earth"
+		},
+		{
+			"name": "Mars",
+			"item": [
+				{
+					"name": "Sort Mars Regions",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "country_id",
+									"value": "160",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "state_id",
+									"value": "2647",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "city_id",
+									"value": "30691",
+									"description": "Optional",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/api/mars/sort/index",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"mars",
+								"sort",
+								"index"
+							]
+						},
+						"description": "Sort regions (at least one parameter required)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Mars Regions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/mars/index?category=countries",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"mars",
+								"index"
+							],
+							"query": [
+								{
+									"key": "category",
+									"value": "countries",
+									"description": "Accepts Only 'countries','states','cities', (Required)"
+								},
+								{
+									"key": "properties",
+									"value": "1",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all mars regions"
+					},
+					"response": []
+				}
+			],
+			"description": "Get regions of the planet mars"
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "26608aef-4713-4686-882d-a6d964371368",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -106,13 +188,11 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "1cadf54f-69e1-4298-b376-047f3bbaafef",
 				"type": "text/javascript",
 				"exec": [
 					""
 				]
 			}
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }
