@@ -30,3 +30,9 @@ $router->group(['middleware' => ['throttle:1,1'], 'prefix' => 'api/earth'],funct
     $router->get('index', 'EarthRegionController@index');
     $router->post('sort/index', 'EarthRegionController@sortIndex');
 });
+
+$router->group(['middleware' => ['throttle:1,1'], 'prefix' => 'api/mars'],function () use ($router) {
+
+    $router->get('index', 'MarsRegionController@index');
+    $router->post('sort/index', 'MarsRegionController@sortIndex');
+});

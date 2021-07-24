@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\EarthRegionControllerRequests;
+namespace App\Http\Requests\MarsRegionControllerRequests;
 
 use Urameshibr\Requests\FormRequest;
 
-class EarthRegionIndexRequest extends FormRequest
+class MarsRegionIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.

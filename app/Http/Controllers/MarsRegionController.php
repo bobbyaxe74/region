@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
-use App\Http\Requests\EarthRegionControllerRequests\EarthRegionSortRequest;
-use App\Http\Requests\EarthRegionControllerRequests\EarthRegionIndexRequest;
+use App\Http\Requests\MarsRegionControllerRequests\MarsRegionSortRequest;
+use App\Http\Requests\MarsRegionControllerRequests\MarsRegionIndexRequest;
 
-class EarthRegionController extends Controller
+class MarsRegionController extends Controller
 {
-    protected $earth_regions;
+    protected $mars_regions;
 
     /**
      * Create a new controller instance.
@@ -18,16 +18,16 @@ class EarthRegionController extends Controller
      */
     public function __construct() 
     {
-        // Retrieve all earth regions from file and store in memory
-        $this->earth_regions = Cache::rememberForever('EARTH_REGIONS', function () {
+        // Retrieve all mars regions from file and store in memory
+        $this->mars_regions = Cache::rememberForever('MARS_REGIONS', function () {
 
-            $contents = file_get_contents('../dependencies/EarthRegions/countries.json');
+            $contents = file_get_contents('../dependencies/MarsRegions/countries.json');
             $country_list = collect(json_decode($contents, true))->collapse();
 
-            $contents = file_get_contents('../dependencies/EarthRegions/states.json');
+            $contents = file_get_contents('../dependencies/MarsRegions/states.json');
             $state_list = collect(json_decode($contents, true))->collapse();
 
-            $contents = file_get_contents('../dependencies/EarthRegions/cities.json');
+            $contents = file_get_contents('../dependencies/MarsRegions/cities.json');
             $city_list = collect(json_decode($contents, true))->collapse();
 
             $countries = $country_list->keyBy('id');
@@ -63,20 +63,20 @@ class EarthRegionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(EarthRegionIndexRequest $request)
+    public function index(MarsRegionIndexRequest $request)
     {
         if ($request->input('properties')){
 
             // Get all regions by category with all their properties
             $regions = collect(
-                $this->earth_regions[$request->input('category')]
+                $this->mars_regions[$request->input('category')]
             );
 
         } else {
 
             // Get all regions by category with out their relations
             $regions = collect(
-                $this->earth_regions[$request->input('category')]
+                $this->mars_regions[$request->input('category')]
             )->pluck('name','id');
         }
 
@@ -101,14 +101,14 @@ class EarthRegionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function sortIndex(EarthRegionSortRequest $request)
+    public function sortIndex(MarsRegionSortRequest $request)
     {
         $country_id = is_null($request->input('country_id'))? false : $request->input('country_id');
         $state_id = is_null($request->input('state_id'))? false : $request->input('state_id');
         $city_id = is_null($request->input('city_id'))? false : $request->input('city_id');
 
         // Build search query
-        $regions = collect($this->earth_regions['all'])->when($country_id, function ($collection, $country_id) {
+        $regions = collect($this->mars_regions['all'])->when($country_id, function ($collection, $country_id) {
             
             // Find the given country by id
             $collection = collect($collection->get($country_id));
@@ -131,20 +131,20 @@ class EarthRegionController extends Controller
             return $collection->when($state_id && $city_id, function($collection)  use ($state_id, $city_id){
 
                 // Find the given state and city by id
-                $collection = collect($this->earth_regions['all'])->pluck('states')->flatten(1);
+                $collection = collect($this->mars_regions['all'])->pluck('states')->flatten(1);
                 $collection = collect($collection->firstWhere('id', $state_id))->get('cities');
-                return collect($collection->firstWhere('id', $city_id));
+                return collect(collect($collection)->firstWhere('id', $city_id));
 
             })->when($state_id && !$city_id, function($collection)  use ($state_id, $city_id){
 
                 // Find the given state by id
-                $collection = collect($this->earth_regions['all'])->pluck('states')->flatten(1);
+                $collection = collect($this->mars_regions['all'])->pluck('states')->flatten(1);
                 return collect($collection->firstWhere('id', $state_id));
 
             })->when(!$state_id && $city_id, function($collection)  use ($state_id, $city_id){
 
                 // Find the given city by id
-                $collection = collect($this->earth_regions['all'])->pluck('states.*.cities')->flatten(2);
+                $collection = collect($this->mars_regions['all'])->pluck('states.*.cities')->flatten(2);
                 return collect($collection->firstWhere('id', $city_id));
 
             });
