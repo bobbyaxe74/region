@@ -30,25 +30,24 @@ class EarthRegionController extends Controller
             $contents = file_get_contents('../dependencies/cities.json');
             $city_list = collect(json_decode($contents, true))->collapse();
 
-            $state_grouped_by_country = $state_list->groupBy('country_id');
-            $city_grouped_by_state = $city_list->groupBy('state_id');
+            $countries = $country_list->keyBy('id');
+            $states = $state_list->groupBy('country_id');
+            $cities = $city_list->groupBy('state_id');
 
-            // Map through all the countries
-            $all = $state_grouped_by_country->map(function ($country, $key) use ($city_grouped_by_state) {
+            // Map through all the countries, adding its states and cities
+            $all = $countries->map(function ($country) use ($states, $cities) {
 
-                // Map through all the states of the current country
-                return $country->map(function ($state, $key) use ($city_grouped_by_state) {
+                return array_merge (
+                    $country, ['states' => collect($states->get($country['id']))->map(function ($state) use ($cities) {
 
-                    // Get the cites of the current state
-                    $cities = $city_grouped_by_state->get($state['id']);
-                    if ($cities) {
-                        return array_merge($state, ['cities' => $cities->toArray()]);
-                    } else {
-                        return array_merge($state, ['cities' => $cities]);
-                    }
-                });
+                        return array_merge (
+                            $state, ['cities' => collect($cities->get($state['id']))]
+                        );
+                    })]
+                );
             });
 
+            // Categories
             return [
                 'countries' => $country_list->toArray(),
                 'states' => $state_list->toArray(),
@@ -66,9 +65,6 @@ class EarthRegionController extends Controller
      */
     public function index(Request $request)
     {
-        // Validate request
-        new EarthRegionIndexRequest($request);
-
         if ($request->input('properties')){
 
             // Get all regions by category with all their properties
@@ -107,24 +103,51 @@ class EarthRegionController extends Controller
      */
     public function sortIndex(Request $request)
     {
-        // Validate request
-        new EarthRegionSortRequest($request);
-
         $country_id = is_null($request->input('country_id'))? false : $request->input('country_id');
         $state_id = is_null($request->input('state_id'))? false : $request->input('state_id');
         $city_id = is_null($request->input('city_id'))? false : $request->input('city_id');
 
         // Build search query
         $regions = collect($this->earth_regions['all'])->when($country_id, function ($collection, $country_id) {
-            return collect($collection->get($country_id));
+            
+            // Find the given country by id
+            $collection = collect($collection->get($country_id));
+            return $collection;
 
         })->when($state_id, function ($collection, $state_id) {
-            return collect($collection->firstWhere('id',$state_id));
+
+            // Find the given state by id
+            $collection = collect($collection->get('states'));
+            return collect($collection->firstWhere('id', $state_id));
 
         })->when($city_id, function ($collection, $city_id) {
 
+            // Find the given city by id
             $collection = collect($collection->get('cities'));
-            return collect($collection->firstWhere('id',$city_id));
+            return collect($collection->firstWhere('id', $city_id));
+
+        })->whenEmpty(function ($collection) use ($state_id, $city_id) {
+
+            return $collection->when($state_id && $city_id, function($collection)  use ($state_id, $city_id){
+
+                // Find the given state and city by id
+                $collection = collect($this->earth_regions['all'])->pluck('states')->flatten(1);
+                $collection = collect($collection->firstWhere('id', $state_id))->get('cities');
+                return collect($collection->firstWhere('id', $city_id));
+
+            })->when($state_id && !$city_id, function($collection)  use ($state_id, $city_id){
+
+                // Find the given state by id
+                $collection = collect($this->earth_regions['all'])->pluck('states')->flatten(1);
+                return collect($collection->firstWhere('id', $state_id));
+
+            })->when(!$state_id && $city_id, function($collection)  use ($state_id, $city_id){
+
+                // Find the given city by id
+                $collection = collect($this->earth_regions['all'])->pluck('states.*.cities')->flatten(2);
+                return collect($collection->firstWhere('id', $city_id));
+
+            });
 
         });
 

@@ -24,8 +24,8 @@ class EarthRegionSortRequest extends BaseRequest
     public function rules()
     {
         return [
-            'country_id' => 'required|integer|min:0',
-            'state_id' => 'required_unless:city_id,'.null.'|integer|min:1',
+            'country_id' => 'sometimes|required|integer|min:1',
+            'state_id' => 'sometimes|required|integer|min:1',
             'city_id' => 'sometimes|required|integer|min:1',
         ];
     }
@@ -38,18 +38,20 @@ class EarthRegionSortRequest extends BaseRequest
     public function messages()
     {
         return [
-            'country_id.required' => 'A country id required',
+            'country_id.sometimes' => 'A country id should be present, else entirely exclude the field',
+            'country_id.required' => 'A country id is required',
             'country_id.integer'  => 'Country id characters are not valid, Integer is expected',
-            'country_id.min'  => 'Country id characters can not be less than 0',
+            'country_id.min'  => 'Country id characters can not be less than 1',
 
-            'state_id.required_unless' => 'A state id field should be present, else entirely exclude the city id field',
+            'state_id.sometimes' => 'A state id should be present, else entirely exclude the field',
+            'state_id.required' => 'A state id is required',
             'state_id.integer'  => 'State id characters are not valid, Integer is expected',
             'state_id.min'  => 'State id characters can not be less than 1',
 
             'city_id.sometimes' => 'A city id should be present, else entirely exclude the field',
-            'city_id.required' => 'A city id maybe required',
+            'city_id.required' => 'A city id is required',
             'city_id.integer'  => 'City id characters are not valid, Integer is expected',
-            'city_id.min'  => 'City id characters can not be less than 1',
+            'city_id.min'  => 'City id characters can not be less than 0',
         ];
     }
 }
