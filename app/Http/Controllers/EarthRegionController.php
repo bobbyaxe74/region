@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use App\Http\Requests\EarthRegionControllerRequests\EarthRegionSortRequest;
 use App\Http\Requests\EarthRegionControllerRequests\EarthRegionIndexRequest;
-use Illuminate\Http\Request;
 
 class EarthRegionController extends Controller
 {
@@ -21,13 +21,13 @@ class EarthRegionController extends Controller
         // Retrieve all earth regions from file and store in memory
         $this->earth_regions = Cache::rememberForever('EARTH_REGIONS', function () {
 
-            $contents = file_get_contents('../dependencies/countries.json');
+            $contents = file_get_contents('../dependencies/RegionEarth/countries.json');
             $country_list = collect(json_decode($contents, true))->collapse();
 
-            $contents = file_get_contents('../dependencies/states.json');
+            $contents = file_get_contents('../dependencies/RegionEarth/states.json');
             $state_list = collect(json_decode($contents, true))->collapse();
 
-            $contents = file_get_contents('../dependencies/cities.json');
+            $contents = file_get_contents('../dependencies/RegionEarth/cities.json');
             $city_list = collect(json_decode($contents, true))->collapse();
 
             $countries = $country_list->keyBy('id');
@@ -63,7 +63,7 @@ class EarthRegionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index(EarthRegionIndexRequest $request)
     {
         if ($request->input('properties')){
 
@@ -101,7 +101,7 @@ class EarthRegionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function sortIndex(Request $request)
+    public function sortIndex(EarthRegionSortRequest $request)
     {
         $country_id = is_null($request->input('country_id'))? false : $request->input('country_id');
         $state_id = is_null($request->input('state_id'))? false : $request->input('state_id');

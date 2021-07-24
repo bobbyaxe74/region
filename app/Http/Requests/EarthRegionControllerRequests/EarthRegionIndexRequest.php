@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\EarthRegionControllerRequests;
 
-use App\Http\Requests\BaseRequest;
+use Urameshibr\Requests\FormRequest;
 
-class EarthRegionIndexRequest extends BaseRequest
+class EarthRegionIndexRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
