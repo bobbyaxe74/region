@@ -108,11 +108,10 @@ class EarthRegionController extends Controller
         $city_id = is_null($request->input('city_id'))? false : $request->input('city_id');
 
         // Build search query
-        $regions = collect($this->earth_regions['all'])->when($country_id, function ($collection, $country_id) {
-            
+        $regions = collect($this->earth_regions['all'])->values()->when($country_id, function ($collection, $country_id) {
+
             // Find the given country by id
-            $collection = collect($collection->get($country_id));
-            return $collection;
+            return collect($collection->firstWhere('id', $country_id));
 
         })->when($state_id, function ($collection, $state_id) {
 
